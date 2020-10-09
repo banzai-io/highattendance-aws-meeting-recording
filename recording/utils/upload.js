@@ -28,21 +28,24 @@ class S3Uploader {
     }
 
     sendStopRecordData() {
-        const requestURL =  this.serverName + '/stop-recording';
-        const stopRecordData = {
-            eventCode: this.eventCode,
-            token: this.token,
-            fileName: this.key
-        }
-        const options = {
-            url: requestURL,
-            method: 'POST',
-            body: stopRecordData,
-            json: true,
-        };
-        request(options, function (error, response) {
-            if (error) return console.log(error);
-            console.log('Send stop record data to server success');
+        return new Promise((resolve, reject) => {
+            const requestURL = this.serverName + '/stop-recording';
+            const stopRecordData = {
+                eventCode: this.eventCode,
+                token: this.token,
+                fileName: this.key
+            }
+            const options = {
+                url: requestURL,
+                method: 'POST',
+                body: stopRecordData,
+                json: true,
+            };
+            console.log('Start stop recording request, options => ', options);
+            request(options, function (error, response) {
+                if (error) reject(error);
+                resolve(response);
+            });
         });
     }
 
@@ -52,8 +55,16 @@ class S3Uploader {
                 console.log('[stream upload process] - failure - error handling on failure', err);
             } else {
                 console.log(`[stream upload process] - success - uploaded the file to: ${data.Location}`);
-                this.sendStopRecordData();
-                process.exit();
+                this.sendStopRecordData().then(
+                    (res) => {
+                        console.log('Send stop record data request success, exiting process');
+                        process.exit();
+                    },
+                    (err) => {
+                        console.log('Send stop record data request, exiting process, error => ', err);
+                        process.exit();
+                    }
+                );
             }
         });
         managedUpload.on('httpUploadProgress', function (event) {
