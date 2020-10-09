@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 const AWS = require('aws-sdk');
+const config = require('./config');
 
 /**
  * S3Upload Class
@@ -13,11 +14,15 @@ class S3Uploader {
      * @param {*} bucket - the S3 bucket name uploaded to
      * @param {*} key - the file name in S3 bucket
      */
-    constructor(bucket, key) {
-        this.bucket = bucket;
+    constructor(key) {
         this.key = key;
-        this.s3Uploader = new AWS.S3({ params: { Bucket: bucket, Key: key } });
-        console.log(`[upload process] constructed a S3 object with bucket: ${this.bucket}, key: ${this.key}`);
+        this.s3Uploader = new AWS.S3({
+            accessKeyId: config['S3_KEY'],
+            secretAccessKey: config['S3_SECRET'],
+            Bucket: config['S3_BUCKET'],
+            params: {Key: key}
+        });
+        console.log(`[upload process] constructed a S3 object with key: ${this.key}`);
     }
 
     uploadStream(stream) {

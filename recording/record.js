@@ -75,7 +75,7 @@ const fileTimestamp = timestamp.toISOString().substring(0,19);
 // const hour = timestamp.getUTCHours();
 const eventCode = new URL(decodeURIComponent(MEETING_URL)).searchParams.get('eventId');
 const fileName = `/virtual-meeting/event-${eventCode}/${fileTimestamp}.mp4`;
-new S3Uploader(BUCKET_NAME, fileName).uploadStream(transcodeStreamToOutput.stdout);
+new S3Uploader(fileName).uploadStream(transcodeStreamToOutput.stdout);
 
 // event handler for docker stop, not exit until upload completes
 process.on('SIGTERM', (code, signal) => {
